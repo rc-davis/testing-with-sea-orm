@@ -1,0 +1,34 @@
+[package]
+name = "bakery-backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+futures = "0.3.31"
+sea-orm = { version = "1.1.0", features = ["sqlx-postgres", "sqlx-sqlite", "runtime-tokio-native-tls", "with-chrono", "with-json", "with-rust_decimal", "with-uuid", "macros", "debug-print"] }
+tokio = { workspace = true }
+serde = { version = "1.0.125", features = ["derive"] }
+serde_json = "1.0.132"
+migration = { path = "migration" }
+
+[lib]
+name = "bakery_backend"
+path = "src/lib.rs"
+
+[[bin]]
+name = "bakery_backend"
+path = "src/main.rs"
+
+[workspace]
+resolver = "2"
+members = [
+    ".",
+    "migration",
+]
+
+[workspace.dependencies]
+anyhow = "1.0.91"
+chrono = { version = "0.4.38", features = ["serde"] }
+tracing = "0.1.40"
+tokio = { version = "1.41.0", features = ["full"] }
