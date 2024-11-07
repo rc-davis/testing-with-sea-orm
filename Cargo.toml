@@ -1,23 +1,31 @@
 [package]
-name = "bakery-backend"
+name = "testing-with-sea-orm"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+async-trait = "0.1.83"
 anyhow = { workspace = true }
 futures = "0.3.31"
-sea-orm = { version = "1.1.0", features = ["sqlx-postgres", "sqlx-sqlite", "runtime-tokio-native-tls", "with-chrono", "with-json", "with-rust_decimal", "with-uuid", "macros", "debug-print"] }
+sea-orm = { version = "1.1.0", features = ["sqlx-postgres", "sqlx-sqlite", "runtime-tokio-native-tls", "with-chrono", "with-json", "with-rust_decimal", "with-uuid", "macros"] }
 tokio = { workspace = true }
 serde = { version = "1.0.125", features = ["derive"] }
 serde_json = "1.0.132"
 migration = { path = "migration" }
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
+
+[dev-dependencies]
+lazy_static = "1.5.0"
+async_once = "0.2.6"
+tokio-shared-rt = "0.1.0"
 
 [lib]
-name = "bakery_backend"
+name = "testing_with_sea_orm"
 path = "src/lib.rs"
 
 [[bin]]
-name = "bakery_backend"
+name = "testing_with_sea_orm"
 path = "src/main.rs"
 
 [workspace]

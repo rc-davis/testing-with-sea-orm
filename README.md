@@ -1,24 +1,42 @@
-# bakery-backend
+# Testing with SeaORM
 
-An example of SeaORM usage.
+How SeaORM can help you build an app that uses Postgres as the main database
+and an in-memory SQLite database for integration tests.
 
 ## Integration tests
 
-The main benefit of this setup is the ability to run integration tests against an in-memory SQLite database
-instead of a live Postgres database, thus avoiding the need for network or file system access in most tests.
-A full testing strategy would still include a smaller number of end-to-end tests that run on a live Postgres database.
+As usual, integration tests can be found in the `tests` directory.
+
+The main benefit of this setup is that it avoids the need for network or file system access in integration tests.
+(Note that a full testing strategy would still include a smaller number of end-to-end tests that run on a live Postgres
+database.)
 
 The main disadvantage of this setup is that SeaORM, like all ORMs, is a leaky abstraction.
-Sometimes you will need to write both Postgres and SQLite specific code. You can switch at runtime or compile time.
+Sometimes you will need to write both Postgres and SQLite specific code. This setup allows you to
+switch between the two both in repositories and migrations with the `db.get_database_backend()`
+function. This returns a `DbBackend` enum (with `Postgres` and `Sqlite` variants)
+which is a required argument for functions that use raw SQL statements, like
+`Statement::from_string()` or `Statement::from_sql_and_values()`.
 
-- **Runtime switching**: The `db.get_database_backend()` function returns an enum with
-  `DbBackend::Postgres` and `DbBackend::Sqlite` variants.
-  This is a required argument for functions that use raw SQL statements, like
-  `Statement::from_string()` or `Statement::from_sql_and_values()`.
-- **Compile time switching**: If you always use SQLite for testing and Postgres otherwise, you can use
-  `#[cfg(not(test))]` for Postgres and `#[cfg(test)]` for SQLite.
+### Sharing Tokio Runtimes in Integration Tests
 
-### Use with a monorepos
+`[tokio::test]` sets up a different tokio runtime for each test.
+This crate annotates integration tests with `#[tokio_shared_rt::test(shared)]`,
+because it sets up a single tokio runtime that is shared between integration tests in
+the same file. This allows us to set up a single, shared database connection
+and run database migrations once before tests begin.
+
+### Debugging and Logging
+
+You can pass some environment variables to the integration test runner for special behavior.
+
+- `DEBUG=true` - This creates a database file for each test rather than using an in-memory
+  database, which is slower but easy to inspect. The file has the same name as the
+  top-level rust file (with a `.sqlite` extension) and is cleared out at the beginning
+  of every test run. This also turns on debug logging.
+- `VERBOSE=true` - This turns on debug logging while still using the fast, in-memory database.
+
+### Use with a monorepo
 
 For this setup to work in a monorepo, you would need to do two things:
 
